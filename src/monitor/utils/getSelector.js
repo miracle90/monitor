@@ -1,4 +1,5 @@
 function getSelectors(path) {
+  // 反转 + 过滤 + 映射 + 拼接
   return path
     .reverse()
     .filter((element) => {
@@ -19,8 +20,15 @@ function getSelectors(path) {
     .join(" ");
 }
 
-export default function (path) {
-  if (Array.isArray(path)) {
+export default function (pathsOrTarget) {
+  if (Array.isArray(pathsOrTarget)) {
+    return getSelectors(pathsOrTarget);
+  } else {
+    let path = [];
+    while (pathsOrTarget) {
+      path.push(pathsOrTarget);
+      pathsOrTarget = pathsOrTarget.parentNode;
+    }
     return getSelectors(path);
   }
 }

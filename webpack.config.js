@@ -18,7 +18,8 @@ module.exports = {
   plugins: [
     new HtmlWebpackPlugin({
       template: "./src/index.html",
-      inject: "head", // head or body
+      inject: "head", // head or body,
+      scriptLoading: 'blocking'
     }),
   ],
 };

@@ -9,7 +9,7 @@ let userAgent = require("user-agent");
 function getExtraData() {
   return {
     title: document.title,
-    url: location.url,
+    url: location.href,
     timestamp: Date.now(),
     userAgent: userAgent.parse(navigator.userAgent).name,
   };
