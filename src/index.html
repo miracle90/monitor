@@ -9,37 +9,43 @@
   </head>
   <body>
     <div id="container">
-      <div id="content">
+      <div class="content">
         <input
-          id="errorBtn"
           type="button"
-          value="点击报错"
-          onclick="errorClick()"
+          id="successBtn"
+          value="ajax成功请求"
+          onclick="sendSuccess()"
         />
         <input
-          id="promiseErrorBtn"
           type="button"
-          value="点击抛出Promise报错"
-          onclick="promiseErrorClick()"
+          id="errorBtn"
+          value="ajax失败请求"
+          onclick="sendError()"
         />
       </div>
     </div>
     <script>
-      function errorClick() {
-        window.someVar.error = "error";
+      function sendSuccess() {
+        let xhr = new XMLHttpRequest();
+        xhr.open("GET", "/success", true);
+        xhr.responseType = "json";
+        xhr.onload = function () {
+          console.log(xhr.response);
+        };
+        xhr.send();
       }
-      function promiseErrorClick() {
-        new Promise(function (resolve, reject) {
-          window.someVar.error = "error";
-          // reject('err')
-        }).then(
-          (res) => {
-            console.log("+++ ", res);
-          },
-          (error) => {
-            console.log(error);
-          }
-        );
+
+      function sendError(params) {
+        let xhr = new XMLHttpRequest();
+        xhr.open("POST", "/error", true);
+        xhr.responseType = "json";
+        xhr.onload = function () {
+          console.log(xhr.response);
+        };
+        xhr.onerror = function (err) {
+          console.log(err);
+        };
+        xhr.send("name=lyy");
       }
     </script>
     <script src="error.js"></script>
