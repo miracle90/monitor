@@ -1,11 +1,11 @@
 import tracker from "../utils/tracker";
 
-export function injectXHR(params) {
+export function injectXHR() {
   let XMLHttpRequest = window.XMLHttpRequest;
   let oldOpen = XMLHttpRequest.prototype.open;
   XMLHttpRequest.prototype.open = function (method, url, async) {
     // 把上报接口过滤掉
-    if (!url.match(/logstores/)) {
+    if (!url.match(/logstores/) && !url.match(/sockjs/)) {
       this.logData = { method, url, async };
     }
     return oldOpen.apply(this, arguments);

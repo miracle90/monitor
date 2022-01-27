@@ -3,7 +3,6 @@ import getSelector from "../utils/getSelector";
 import tracker from "../utils/tracker";
 
 export function injectJsError() {
-  console.log('~~~~~~~~~~~~')
   // 监听全局未捕获的错误
   window.addEventListener(
     "error",

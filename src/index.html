@@ -2,52 +2,27 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>前端监控</title>
-    <!-- <link rel="stylesheet" href=""> -->
+    <title>monitor</title>
   </head>
   <body>
     <div id="container">
-      <div class="content">
-        <input
-          type="button"
-          id="successBtn"
-          value="ajax成功请求"
-          onclick="sendSuccess()"
-        />
-        <input
-          type="button"
-          id="errorBtn"
-          value="ajax失败请求"
-          onclick="sendError()"
-        />
-      </div>
+      <div class="content" style="width: 600px; word-wrap: break-word"></div>
     </div>
     <script>
-      function sendSuccess() {
-        let xhr = new XMLHttpRequest();
-        xhr.open("GET", "/success", true);
-        xhr.responseType = "json";
-        xhr.onload = function () {
-          console.log(xhr.response);
-        };
-        xhr.send();
-      }
-
-      function sendError(params) {
-        let xhr = new XMLHttpRequest();
-        xhr.open("POST", "/error", true);
-        xhr.responseType = "json";
-        xhr.onload = function () {
-          console.log(xhr.response);
-        };
-        xhr.onerror = function (err) {
-          console.log(err);
-        };
-        xhr.send("name=lyy");
-      }
+      let content = document.getElementsByClassName("content")[0];
+      // content.innerHTML = "@".repeat(10000);
+      // DOM解析完成，即使依赖的资源没有加载完成，也会触发这个时间
+      // document.addEventListener("DOMContentLoaded", () => {
+      //   let start = Date.now();
+      //   while (Date.now() - start < 1000) {}
+      // });
+      setTimeout(() => {
+        let h1 = document.createElement("h1");
+        h1.innerHTML = "FMP";
+        h1.setAttribute("elementtiming", "meaningful");
+        content.appendChild(h1)
+      }, 2000);
     </script>
-    <script src="error.js"></script>
   </body>
 </html>
