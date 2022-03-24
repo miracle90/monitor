@@ -7,20 +7,21 @@ export function timing() {
   let FMP, LCP;
   // 增加一个性能条目的观察者
   new PerformanceObserver((entryList, observer) => {
-    let perfEntries = entryList.getEntries();
+    const perfEntries = entryList.getEntries();
     FMP = perfEntries[0];
     observer.disconnect(); // 不再观察了
   }).observe({ entryTypes: ["element"] }); // 观察页面中有意义的元素
   // 增加一个性能条目的观察者
   new PerformanceObserver((entryList, observer) => {
-    let perfEntries = entryList.getEntries();
-    LCP = perfEntries[0];
+    const perfEntries = entryList.getEntries();
+    const lastEntry = perfEntries[perfEntries.length - 1];
+    LCP = lastEntry;
     observer.disconnect(); // 不再观察了
   }).observe({ entryTypes: ["largest-contentful-paint"] }); // 观察页面中最大的元素
   // 增加一个性能条目的观察者
   new PerformanceObserver((entryList, observer) => {
-    let lastEvent = getLastEvent;
-    let firstInput = entryList.getEntries()[0];
+    const lastEvent = getLastEvent();
+    const firstInput = entryList.getEntries()[0];
     if (firstInput) {
       // 开始处理的时间 - 开始点击的时间，差值就是处理的延迟
       let inputDelay = firstInput.processingStart - firstInput.startTime;
@@ -29,8 +30,8 @@ export function timing() {
         tracker.send({
           kind: "experience", // 用户体验指标
           type: "firstInputDelay", // 首次输入延迟
-          inputDelay, // 延迟的时间
-          duration, // 处理的时间
+          inputDelay: inputDelay ? formatTime(inputDelay) : 0, // 延迟的时间
+          duration: duration ? formatTime(duration) : 0,
           startTime: firstInput.startTime, // 开始处理的时间
           selector: lastEvent
             ? getSelector(lastEvent.path || lastEvent.target)
@@ -38,9 +39,9 @@ export function timing() {
         });
       }
     }
-    LCP = perfEntries[0];
     observer.disconnect(); // 不再观察了
   }).observe({ type: "first-input", buffered: true }); // 第一次交互
+
   // 刚开始页面内容为空，等页面渲染完成，再去做判断
   onload(function () {
     setTimeout(() => {
@@ -74,8 +75,8 @@ export function timing() {
       let FP = performance.getEntriesByName("first-paint")[0];
       let FCP = performance.getEntriesByName("first-contentful-paint")[0];
       console.log("FP", FP);
-      console.log("FMP", FMP);
       console.log("FCP", FCP);
+      console.log("FMP", FMP);
       console.log("LCP", LCP);
       tracker.send({
         kind: "experience",
