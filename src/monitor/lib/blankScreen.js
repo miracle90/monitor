@@ -43,7 +43,7 @@ export function blankScreen() {
       isWrapper(yElements[0]);
     }
     // 白屏
-    if (emptyPoints >= 18) {
+    if (emptyPoints >= 0) {
       const centerElements = document.elementsFromPoint(
         window.innerWidth / 2,
         window.innerHeight / 2
