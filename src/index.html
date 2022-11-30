@@ -23,6 +23,9 @@
         h1.setAttribute("elementtiming", "meaningful");
         content.appendChild(h1)
       }, 2000);
+      fetch('/success').then(res => res.json()).then(res=> {
+        // console.log('fetch jsonRes', res)
+      })
     </script>
   </body>
 </html>
