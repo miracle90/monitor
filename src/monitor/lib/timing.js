@@ -1,5 +1,6 @@
 import tracker from "../utils/tracker";
 import onload from "../utils/onload";
+import formatTime from "../utils/formatTime";
 import getLastEvent from "../utils/getLastEvent";
 import getSelector from "../utils/getSelector";
 

@@ -1,7 +1,7 @@
-import tracker from "../util/tracker";
-import formatTime from "../util/formatTime";
-import getLastEvent from "../util/getLastEvent";
-import getSelector from "../util/getSelector";
+import tracker from "../utils/tracker";
+import formatTime from "../utils/formatTime";
+import getLastEvent from "../utils/getLastEvent";
+import getSelector from "../utils/getSelector";
 
 export function longTask() {
   new PerformanceObserver((list) => {
