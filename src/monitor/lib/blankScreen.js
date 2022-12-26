@@ -2,7 +2,10 @@ import tracker from "../utils/tracker";
 import onload from "../utils/onload";
 
 export function blankScreen() {
-  let wrapperElements = ["html", "body", "#container", ".content"];
+  // 控制密集度，如只有10密度，则无法检测到
+  let NUM = 20;
+  // 白屏过滤名单
+  let wrapperElements = ["html", "body", "#container"];
   let emptyPoints = 0;
   function getSelector(element) {
     const { id, className, nodeName } = element;
@@ -22,28 +25,48 @@ export function blankScreen() {
     }
   }
   function isWrapper(element) {
+    if (!element) {
+      emptyPoints++;
+      return;
+    }
     let selector = getSelector(element);
+
     if (wrapperElements.indexOf(selector) !== -1) {
       emptyPoints++;
     }
   }
   // 刚开始页面内容为空，等页面渲染完成，再去做判断
   onload(function () {
-    let xElements, yElements;
-    for (let i = 0; i < 9; i++) {
-      xElements = document.elementsFromPoint(
-        (window.innerWidth * i) / 10,
+    let xElements, yElements, xyDownElements, xyUpElements;
+    const portion = NUM + 1
+    const xPortion = window.innerWidth / portion;
+    const yPortion = window.innerHeight / portion;
+    for (let i = 0; i < NUM; i++) {
+      xElements = document.elementFromPoint(
+        xPortion * i,
         window.innerHeight / 2
       );
-      yElements = document.elementsFromPoint(
+      yElements = document.elementFromPoint(
         window.innerWidth / 2,
-        (window.innerHeight * i) / 10
+        yPortion * i
       );
-      isWrapper(xElements[0]);
-      isWrapper(yElements[0]);
+      xyDownElements = document.elementFromPoint(
+        xPortion * i,
+        yPortion * i
+      );
+      xyUpElements = document.elementFromPoint(
+        xPortion * i,
+        yPortion * (NUM - i)
+      );
+
+      isWrapper(xElements);
+      isWrapper(yElements);
+      isWrapper(xyDownElements);
+      isWrapper(xyUpElements);
     }
+
     // 白屏
-    if (emptyPoints >= 0) {
+    if (emptyPoints == 4 * NUM) {
       const centerElements = document.elementsFromPoint(
         window.innerWidth / 2,
         window.innerHeight / 2
