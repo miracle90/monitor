@@ -7,7 +7,9 @@
   </head>
   <body>
     <div id="container">
-      <div class="content" style="width: 600px; word-wrap: break-word"></div>
+      <div class="content" style="width: 81%; word-wrap: break-word">
+        FMP
+      </div>
     </div>
     <script>
       let content = document.getElementsByClassName("content")[0];
@@ -23,9 +25,14 @@
         h1.setAttribute("elementtiming", "meaningful");
         content.appendChild(h1)
       }, 2000);
-      fetch('/success').then(res => res.json()).then(res=> {
-        // console.log('fetch jsonRes', res)
+      fetch('/success').then(res => {
+        console.log(res)
+        return res.json()
+      }).then(res=> {
+        console.log('fetch jsonRes', res)
       })
     </script>
+    <script src="../dist/monitor.js"></script>
+
   </body>
 </html>

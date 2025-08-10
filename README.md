@@ -315,7 +315,80 @@ export function injectXHR() {
   };
 }
 ```
+* 重写fetch方法
+```js
+import tracker from "../utils/tracker";
 
+export function injectFetch () {
+    let oldFetch = window.fetch;
+
+    function hijackFetch (url, options) {
+        let startTime = Date.now();
+        return new Promise((resolve, reject) => {
+            oldFetch.apply(this, [url, options]).then(async response => {
+                // response 为流数据
+                const oldResponseJson = response.__proto__.json;
+                response.__proto__.json = function(...responseRest) {
+                    return new Promise((responseResolve, responseReject) => {
+                        oldResponseJson.apply(this, responseRest).then(result => {
+                            responseResolve(result);
+                        }, (responseRejection) => {
+                            // 接口
+                            sendLogData({
+                                url,
+                                startTime,
+                                statusText: response.statusText,
+                                status: response.status,
+                                eventType: 'error',
+                                response: responseRejection.stack,
+                                options
+                            })
+                            responseReject(responseRejection)
+                        })
+                    })
+                }
+                resolve(response)
+            }, rejection => {
+                // 连接未连接上
+                sendLogData({
+                    url,
+                    startTime,
+                    eventType: 'load',
+                    response: rejection.stack,
+                    options
+                })
+                reject(rejection)
+            })
+        })
+    }
+    window.fetch = hijackFetch;
+}
+
+const sendLogData = ({
+    startTime,
+    statusText = '',
+    status = '',
+    eventType,
+    url,
+    options,
+    response,
+}) => {
+    // 持续时间
+    let duration = Date.now() - startTime;
+    const { method = 'get', body } = options || {}
+    tracker.send({
+        kind: "stability",
+        type: "fetch",
+        eventType: eventType,
+        pathname: url,
+        status: status + "-" + statusText, // 状态码
+        duration,
+        response: response ? JSON.stringify(response) : "", // 响应体
+        method,
+        params: body || "", // 入参
+    });
+}
+```
 ### 4.4 白屏
 
 - 白屏就是页面上什么都没有
@@ -364,40 +437,64 @@ function getSelector(element) {
   return selector;
 }
 export function blankScreen() {
-  const wrapperSelectors = ["body", "html", "#container", ".content"];
+  // 控制密集度，如只有10密度，则无法检测到
+  let NUM = 20;
+  // 白屏过滤名单
+  let wrapperElements = ["html", "body", "#container"];
   let emptyPoints = 0;
   function isWrapper(element) {
+    if (!element) {
+      emptyPoints++;
+      return;
+    }
     let selector = getSelector(element);
-    if (wrapperSelectors.indexOf(selector) >= 0) {
+
+    if (wrapperElements.indexOf(selector) !== -1) {
       emptyPoints++;
     }
   }
+  // 刚开始页面内容为空，等页面渲染完成，再去做判断
   onload(function () {
-    let xElements, yElements;
-    debugger;
-    for (let i = 1; i <= 9; i++) {
-      xElements = document.elementsFromPoint(
-        (window.innerWidth * i) / 10,
+    let xElements, yElements, xyDownElements, xyUpElements;
+    const portion = NUM + 1
+    const xPortion = window.innerWidth / portion;
+    const yPortion = window.innerHeight / portion;
+    for (let i = 0; i < NUM; i++) {
+      xElements = document.elementFromPoint(
+        xPortion * i,
         window.innerHeight / 2
       );
-      yElements = document.elementsFromPoint(
+      yElements = document.elementFromPoint(
         window.innerWidth / 2,
-        (window.innerHeight * i) / 10
+        yPortion * i
       );
-      isWrapper(xElements[0]);
-      isWrapper(yElements[0]);
+      xyDownElements = document.elementFromPoint(
+        xPortion * i,
+        yPortion * i
+      );
+      xyUpElements = document.elementFromPoint(
+        xPortion * i,
+        yPortion * (NUM - i)
+      );
+
+      isWrapper(xElements);
+      isWrapper(yElements);
+      isWrapper(xyDownElements);
+      isWrapper(xyUpElements);
     }
-    if (emptyPoints >= 0) {
-      let centerElements = document.elementsFromPoint(
+    // 白屏
+    if (emptyPoints == 4 * NUM) {
+      const centerElements = document.elementsFromPoint(
         window.innerWidth / 2,
         window.innerHeight / 2
       );
+      console.log("emptyPoints++++++++++++++", getSelector(centerElements[0]));
       tracker.send({
         kind: "stability",
         type: "blank",
-        emptyPoints: "" + emptyPoints,
-        screen: window.screen.width + "x" + window.screen.height,
-        viewPoint: window.innerWidth + "x" + window.innerHeight,
+        emptyPoints: emptyPoints + "",
+        screen: window.screen.width + "X" + window.screen.height,
+        viewPoint: window.innerWidth + "X" + window.innerHeight,
         selector: getSelector(centerElements[0]),
       });
     }
